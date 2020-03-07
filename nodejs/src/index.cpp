@@ -1,22 +1,46 @@
 #include <napi.h>
 #include <string>
-#include "greeting.h"
 
-Napi::String greetHello(const Napi::CallbackInfo& info) {
-  Napi::Env env = info.Env();
+#include "kaldi_recognizer.h"
+#include "model.h"
+#include "spk_model.h"
 
-  std::string result = helloUser(info[0].ToString());
+class ModelWrap : public Napi::ObjectWrap<ModelWrap> {
+public:
+  static Napi::Object Init(Napi::Env env, Napi::Object exports);
+  ModelWrap(const Napi::CallbackInfo &info);
+  // Model* GetInstance();
 
-  return Napi::String::New(env, result);
+private:
+  static Napi::FunctionReference constructor;
+  // Model* _instance;
+};
+
+ModelWrap::ModelWrap(const Napi::CallbackInfo &info) : Napi::ObjectWrap<ModelWrap>(info) {
+  // Napi::Env env = info.Env();
+  const char* model_path = info[0].ToString().Utf8Value().c_str();
+  Model* model = new Model(model_path);
 }
 
-Napi::Object Init(Napi::Env env, Napi::Object exports) {
-  exports.Set(
-              Napi::String::New(env, "greetHello"),
-              Napi::Function::New(env, greetHello)
-              );
+Napi::FunctionReference ModelWrap::constructor;
+
+// Model* ModelWrap::GetInstance() {
+//   return _instance;
+// }
+
+Napi::Object ModelWrap::Init(Napi::Env env, Napi::Object exports) {
+  Napi::Function modelClass = DefineClass(env, "Model", {});
+
+  constructor = Napi::Persistent(modelClass);
+  constructor.SuppressDestruct();
+  exports.Set("Model", modelClass);
 
   return exports;
 }
 
-NODE_API_MODULE(greet, Init)
+Napi::Object Init (Napi::Env env, Napi::Object exports) {
+  ModelWrap::Init(env, exports);
+  return exports;
+}
+
+NODE_API_MODULE(NODE_GYP_MODULE_NAME, Init)

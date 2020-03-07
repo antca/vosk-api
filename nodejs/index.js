@@ -1,10 +1,4 @@
-const greetNativeModule = require('./build/Release/greet.node');
+const voskModule = require('./build/Debug/vosk.node');
 
-function greetHello(name) {
-    return greetNativeModule.greetHello(name);
-}
-
-module.exports = {
-    greetHello,
-};
+console.log(new voskModule.Model());
 
