@@ -35,3 +35,7 @@ java/*.cc
 csharp/gen
 csharp/*.exe
 csharp/*.cc
+
+# Node.js
+nodejs/node_modules
+nodejs/build

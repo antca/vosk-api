@@ -1,3 +1,10 @@
-exports.printMsg = function() {
-  console.log("This is a message from the Vosk package");
+const greetNativeModule = require('./build/Release/greet.node');
+
+function greetHello(name) {
+    return greetNativeModule.greetHello(name);
 }
+
+module.exports = {
+    greetHello,
+};
+
