@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Node binding for continuous voice recoginition through pocketsphinx.",
   "scripts": {
-    "build": "cmake-js compile"
+    "build": "cmake-js build"
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require("fs");
+const { Readable } = require("stream");
 const wav = require("wav");
 
 const { Model, KaldiRecognizer } = require("..");
@@ -12,7 +13,7 @@ try {
     process.exit(1);
 }
 
-const wfStream = fs.createReadStream(process.argv[1]);
+const wfStream = fs.createReadStream(process.argv[2]);
 const wfReader = new wav.Reader();
 
 const model = new Model("model-en");
@@ -22,8 +23,8 @@ wfReader.on('format', async ({ audioFormat, sampleRate, channels }) => {
         console.error("Audio file must be WAV format mono PCM.");
         process.exit(1);
     }
-    const rec = KaldiRecognizer(model, format.sampleRate);
-    for await (const data of wfReader) {
+    const rec = new KaldiRecognizer(model, sampleRate);
+    for await (const data of new Readable().wrap(wfReader)) {
         const result = await rec.AcceptWaveform(data);
         console.log(result);
     }
