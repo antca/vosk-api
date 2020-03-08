@@ -2,6 +2,9 @@
   "name": "vosk",
   "version": "0.1.0",
   "description": "Node binding for continuous voice recoginition through pocketsphinx.",
+  "scripts": {
+    "build": "cmake-js compile"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/alphacep/vosk-api.git"
@@ -18,6 +21,10 @@
     "node": ">= 12.x.x"
   },
   "dependencies": {
+    "bindings": "^1.5.0"
+  },
+  "devDependencies": {
+    "cmake-js": "^6.1.0",
     "node-addon-api": "^2.0.0"
   }
 }

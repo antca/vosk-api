@@ -1,4 +1,3 @@
-const voskModule = require('./build/Debug/vosk.node');
+const voskNativeModule = require('bindings')('vosk.node');
 
-console.log(new voskModule.Model());
-
+module.exports = voskNativeModule;
