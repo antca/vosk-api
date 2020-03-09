@@ -1,3 +1,4 @@
+#include <mutex>
 #include <string>
 #include <napi.h>
 
@@ -9,25 +10,26 @@ class KaldiRecognizerWrap : public Napi::ObjectWrap<KaldiRecognizerWrap> {
   KaldiRecognizerWrap(const Napi::CallbackInfo &info);
 
   Napi::Value AcceptWaveform(const Napi::CallbackInfo& info);
+  std::string ExecAcceptWaveform(char* data, size_t len);
 
  private:
   static Napi::FunctionReference constructor;
   KaldiRecognizer* kaldiRecognizer_;
+  std::mutex mutex_;
 };
 
 class AcceptWaveformTask : public Napi::AsyncWorker {
 public:
-  AcceptWaveformTask(Napi::Env env, KaldiRecognizer* kaldiRecognizer, Napi::Buffer<char>& buffer, Napi::Promise::Deferred& deferred);
+  AcceptWaveformTask(Napi::Env env, KaldiRecognizerWrap* kaldiRecognizerWarp, Napi::Buffer<char>& buffer, Napi::Promise::Deferred& deferred);
 
   void Execute() override;
   void OnOK() override;
   void OnError(const Napi::Error& e) override;
 
 private:
-  KaldiRecognizer* kaldiRecognizer_;
+  KaldiRecognizerWrap* kaldiRecognizerWarp_;
+  std::string result_;
   char* data_;
   size_t len_;
-  std::string result_;
   Napi::Promise::Deferred deferred_;
 };
-

@@ -24,23 +24,29 @@ Napi::Object KaldiRecognizerWrap::Init(Napi::Env env, Napi::Object exports) {
 Napi::Value KaldiRecognizerWrap::AcceptWaveform(const Napi::CallbackInfo& info) {
   Napi::Buffer<char> buffer = info[0].As<Napi::Buffer<char>>();
   Napi::Promise::Deferred deferred = Napi::Promise::Deferred::New(info.Env());
-  AcceptWaveformTask* task = new AcceptWaveformTask(info.Env(), kaldiRecognizer_, buffer, deferred);
+  AcceptWaveformTask* task = new AcceptWaveformTask(info.Env(), this, buffer, deferred);
   task->Queue();
   return deferred.Promise();
 }
 
-AcceptWaveformTask::AcceptWaveformTask(Napi::Env env, KaldiRecognizer* kaldiRecognizer, Napi::Buffer<char>& buffer, Napi::Promise::Deferred& deferred)
-  : AsyncWorker(env), kaldiRecognizer_(kaldiRecognizer), deferred_(deferred) {
-  data_ = buffer.Data();
-  len_ = buffer.Length();
+std::string KaldiRecognizerWrap::ExecAcceptWaveform(char* data, size_t len) {
+  mutex_.lock();
+  std::string result;
+  if (kaldiRecognizer_->AcceptWaveform(data, len)) {
+    result = kaldiRecognizer_->Result();
+  } else {
+    result = kaldiRecognizer_->PartialResult();
+  }
+  mutex_.unlock();
+  return result;
+}
+
+AcceptWaveformTask::AcceptWaveformTask(Napi::Env env, KaldiRecognizerWrap* kaldiRecognizerWarp, Napi::Buffer<char>& buffer, Napi::Promise::Deferred& deferred)
+  : AsyncWorker(env), kaldiRecognizerWarp_(kaldiRecognizerWarp), data_(buffer.Data()), len_(buffer.Length()), deferred_(deferred) {
 };
 
 void AcceptWaveformTask::Execute() {
-  if (kaldiRecognizer_->AcceptWaveform(data_, len_)) {
-    result_ = kaldiRecognizer_->Result();
-    return;
-  }
-  result_ = kaldiRecognizer_->PartialResult();
+  result_ = kaldiRecognizerWarp_->ExecAcceptWaveform(data_, len_);
 };
 
 void AcceptWaveformTask::OnOK() {
