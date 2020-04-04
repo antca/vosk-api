@@ -4,8 +4,7 @@ project (vosk)
 
 set(TOP_SRCDIR "${CMAKE_SOURCE_DIR}/..")
 set(KALDI_ROOT "$ENV{KALDI_ROOT}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -DFST_NO_DYNAMIC_LINKING")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{WHEEL_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} $ENV{WHEEL_FLAGS} -std=c++11 -O2 -DFST_NO_DYNAMIC_LINKING")
 
 include_directories("${CMAKE_JS_INC}" "${TOP_SRCDIR}/src" "${KALDI_ROOT}/src" "${KALDI_ROOT}/tools/openfst/include")
 
@@ -35,8 +34,7 @@ target_link_libraries(${PROJECT_NAME}
              ${KALDI_ROOT}/src/base/kaldi-base.a
              ${KALDI_ROOT}/tools/openfst/lib/libfst.a
              ${KALDI_ROOT}/tools/openfst/lib/libfstngram.a
-             ${KALDI_ROOT}/tools/OpenBLAS/libopenblas.a
-             -lgfortran)
+             ${KALDI_ROOT}/tools/OpenBLAS/libopenblas.a)
 
 # Include N-API wrappers
 add_definitions(-DNAPI_VERSION=3)
